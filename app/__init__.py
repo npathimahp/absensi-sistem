@@ -1,6 +1,7 @@
 from flask import Flask
 import firebase_admin
 from firebase_admin import credentials
+import json
 
 from . import config
 from .utils import format_datetime
@@ -12,8 +13,10 @@ def create_app():
     app.secret_key = config.SECRET_KEY
     app.jinja_env.filters["format_datetime"] = format_datetime
 
-    # Firebase setup
-    cred = credentials.Certificate(config.FIREBASE_CREDENTIALS)
+    # Firebase setup from JSON string (for Railway)
+    cred_dict = json.loads(config.FIREBASE_CREDENTIALS_JSON)
+    cred = credentials.Certificate(cred_dict)
+
     firebase_admin.initialize_app(
         cred,
         {
@@ -24,7 +27,6 @@ def create_app():
 
     # Import and register the blueprint
     from . import routes
-
     app.register_blueprint(routes.bp)
 
     return app
