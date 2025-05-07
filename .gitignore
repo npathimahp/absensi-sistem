@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# VS Code config
+.vscode/
+
+# PyCharm
+.idea/
+
+# Environment variables
+.env
+*.env
+
+# Firebase credentials
+serviceAccountKey.json
+
+# Flask cache
+instance/
+*.sqlite3
+
+# Mac OS
+.DS_Store
+
+# Logs
+*.log
+
+# Railway build/output
+build/
+dist/
+*.egg-info/
+
+# System files
+Thumbs.db
