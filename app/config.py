@@ -1,10 +1,20 @@
-# Cache for encoded faces
-ENCODE_FILE = "EncodeFile.p"  # Path to the encoded faces file
+import os
+from dotenv import load_dotenv
 
-# Secret key for Flask session
-SECRET_KEY = "your_secret_key_here"  # Change this to a random string
+# Memuat variabel ENV dari file .env
+load_dotenv()
+
+# Path ke file yang menyimpan encoding wajah
+ENCODE_FILE = "EncodeFile.p"  # Atau sesuaikan dengan path yang benar
+
+# Secret key untuk Flask session
+SECRET_KEY = "your_secret_key_here"
 
 # Firebase configuration details
-FIREBASE_CREDENTIALS = "serviceAccountKey.json"  # Path to the service account key
-DATABASE_URL = "https://faceabsence-743dd-default-rtdb.firebaseio.com/"  # URL to the Firebase Realtime Database
-STORAGE_BUCKET = "faceabsence-743dd.appspot.com"  # URL to the Firebase Storage Bucket
+FIREBASE_CREDENTIALS = os.getenv("FIREBASE_CREDENTIALS")  # Mengambil dari ENV
+DATABASE_URL = os.getenv("DATABASE_URL")
+STORAGE_BUCKET = os.getenv("STORAGE_BUCKET")
+
+# Opsional: Cek jika variabel ENV tidak ditemukan
+if not FIREBASE_CREDENTIALS:
+    raise ValueError("FIREBASE_CREDENTIALS is not set in the environment")
