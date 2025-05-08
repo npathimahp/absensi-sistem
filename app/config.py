@@ -5,15 +5,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Firebase config dari file JSON
-FIREBASE_CREDENTIALS_PATH = Path(__file__).parent / "serviceAccountKey.json"
-try:
-    with open(FIREBASE_CREDENTIALS_PATH) as f:
-        FIREBASE_CREDENTIALS = json.load(f)
-except FileNotFoundError:
+FIREBASE_CREDENTIALS_PATH = os.path.join(os.getcwd(), "serviceAccountKey.json")
+if not os.path.exists(FIREBASE_CREDENTIALS_PATH):
     raise ValueError("Firebase credentials file not found")
-except json.JSONDecodeError:
-    raise ValueError("Invalid Firebase credentials JSON")
+
+with open(FIREBASE_CREDENTIALS_PATH) as f:
+    FIREBASE_CREDENTIALS = json.load(f)
 
 # Firestore database URL & storage bucket
 DATABASE_URL = os.getenv("DATABASE_URL")
