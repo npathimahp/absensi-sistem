@@ -11,8 +11,8 @@ RUN apt-get update && \
     liblapack-dev \
     libgl1
 
-# Copy requirements first untuk caching
-COPY requirements.txt .
+# Tambahkan file serviceAccountKey.json ke image
+COPY serviceAccountKey.json /app/serviceAccountKey.json
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \
