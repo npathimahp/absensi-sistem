@@ -23,4 +23,4 @@ ENV PYTHONUNBUFFERED 1
 EXPOSE 5000
 
 # Perintah untuk menjalankan aplikasi
-CMD ["python", "app.py"]
+CMD ["python", "run.py"]
