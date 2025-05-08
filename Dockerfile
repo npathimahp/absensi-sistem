@@ -16,6 +16,8 @@ COPY requirements.txt requirements.txt
 # Tambahkan file serviceAccountKey.json ke image
 COPY serviceAccountKey.json /app/serviceAccountKey.json
 
+COPY run.py .
+
 # Install Python dependencies
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
