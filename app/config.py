@@ -12,6 +12,8 @@ if not os.path.exists(FIREBASE_CREDENTIALS_PATH):
 with open(FIREBASE_CREDENTIALS_PATH) as f:
     FIREBASE_CREDENTIALS = json.load(f)
 
+SECRET_KEY = os.environ.get("SECRET_KEY", "default-secret-key")
+
 # Firestore database URL & storage bucket
 DATABASE_URL = os.getenv("DATABASE_URL")
 STORAGE_BUCKET = os.getenv("STORAGE_BUCKET")
