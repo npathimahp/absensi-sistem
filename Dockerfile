@@ -11,15 +11,14 @@ RUN apt-get update && \
     liblapack-dev \
     libgl1
 
+COPY requirements.txt requirements.txt
+
 # Tambahkan file serviceAccountKey.json ke image
 COPY serviceAccountKey.json /app/serviceAccountKey.json
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
-
-# Copy seluruh aplikasi
-COPY . .
 
 # Environment variables
 ENV PYTHONUNBUFFERED=1
