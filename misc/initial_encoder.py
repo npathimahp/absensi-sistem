@@ -1,63 +1,82 @@
 import os
-import os
 import json
 import cv2
 import pickle
 import face_recognition
 import firebase_admin
 from firebase_admin import credentials, storage
+from dotenv import load_dotenv
 
-cred_dict = json.loads(os.getenv("FIREBASE_CREDENTIALS_JSON"))
-cred = credentials.Certificate(cred_dict)
-    
-firebase_admin.initialize_app(
-    cred,
-    {
-        "databaseURL": "https://faceabsence-743dd-default-rtdb.firebaseio.com/",
-        "storageBucket": "faceabsence-743dd.appspot.com",
-    },
-)
+# Load environment dari file .env
+load_dotenv()
 
-# Memuat Gambar Mahasiswa
-folderPath = "./app/static/Files/Images"
-imgPathList = os.listdir(folderPath)
-print(imgPathList)
-imgList = []
-studentIDs = []
+# Ambil konfigurasi dari environment
+firebase_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
+database_url = os.getenv("DATABASE_URL")
+storage_bucket = os.getenv("STORAGE_BUCKET")
 
-for path in imgPathList:
-    imgList.append(cv2.imread(os.path.join(folderPath, path)))
-    studentIDs.append(os.path.splitext(path)[0])
-    # Mengunggah Gambar ke Firebase
-    fileName = f"{folderPath}/{path}"
-    bucket = storage.bucket()
-    blob = bucket.blob(fileName)
-    blob.upload_from_filename(fileName)
+# Validasi konfigurasi
+if not firebase_json or not database_url or not storage_bucket:
+    raise EnvironmentError("Environment variables not set properly.")
 
-print(studentIDs)
+# Inisialisasi Firebase jika belum ada
+if not firebase_admin._apps:
+    cred_dict = json.loads(firebase_json)
+    cred = credentials.Certificate(cred_dict)
+    firebase_admin.initialize_app(
+        cred,
+        {
+            "databaseURL": database_url,
+            "storageBucket": storage_bucket,
+        },
+    )
 
+# Path ke folder gambar mahasiswa
+folder_path = "./app/static/Files/Images"
+if not os.path.exists(folder_path):
+    raise FileNotFoundError(f"Folder not found: {folder_path}")
+
+img_paths = os.listdir(folder_path)
+img_list = []
+student_ids = []
+
+bucket = storage.bucket()
+
+for filename in img_paths:
+    full_path = os.path.join(folder_path, filename)
+
+    if not filename.lower().endswith((".png", ".jpg", ".jpeg")):
+        continue
+
+    img = cv2.imread(full_path)
+    if img is None:
+        continue
+
+    img_list.append(img)
+    student_id = os.path.splitext(filename)[0]
+    student_ids.append(student_id)
+
+    # Upload ke Firebase Storage
+    blob = bucket.blob(f"student_images/{filename}")
+    blob.upload_from_filename(full_path)
 
 def find_encodings(images):
-    """Find the encodings of the images."""
-    encodeList = []
-
+    """Mencari encoding wajah dari list gambar."""
+    encode_list = []
     for img in images:
-        # mengonversi gambar dari BGR ke RGB
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        encode = face_recognition.face_encodings(img)[0]
-        encodeList.append(encode)
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        encodings = face_recognition.face_encodings(img_rgb)
+        if encodings:
+            encode_list.append(encodings[0])
+        else:
+            encode_list.append(None)
+    return encode_list
 
-    return encodeList
+# Buat encoding wajah
+encodings = find_encodings(img_list)
+valid_data = [(e, sid) for e, sid in zip(encodings, student_ids) if e is not None]
+encode_list_known, student_ids_filtered = zip(*valid_data) if valid_data else ([], [])
 
-
-print("Encoding Started")
-
-# Membuat Encoding
-encodeListKnown = find_encodings(imgList)
-encodeListKnownWithIds = [encodeListKnown, studentIDs]
-
-file = open("EncodeFile.p", "wb")
-pickle.dump(encodeListKnownWithIds, file)  # Menyimpan Encoding
-file.close()
-
-print("Encoding Ended")
+# Simpan ke file pickle
+with open("EncodeFile.p", "wb") as file:
+    pickle.dump([list(encode_list_known), list(student_ids_filtered)], file)
