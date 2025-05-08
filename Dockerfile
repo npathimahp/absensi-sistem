@@ -9,13 +9,20 @@ RUN apt-get update && \
     build-essential \
     libopenblas-dev \
     liblapack-dev \
-    libgl1
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev && \
+    rm -rf /var/lib/apt/lists/*
 
+# Salin file requirements
 COPY requirements.txt requirements.txt
 
-# Tambahkan file serviceAccountKey.json ke image
+# Salin file serviceAccountKey.json ke image
 COPY serviceAccountKey.json /app/serviceAccountKey.json
 
+# Salin seluruh project
 COPY . .
 
 # Install Python dependencies
