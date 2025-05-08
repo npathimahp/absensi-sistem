@@ -5,12 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-FIREBASE_CREDENTIALS_PATH = os.path.join(os.getcwd(), "serviceAccountKey.json")
-if not os.path.exists(FIREBASE_CREDENTIALS_PATH):
-    raise ValueError("Firebase credentials file not found")
-
-with open(FIREBASE_CREDENTIALS_PATH) as f:
-    FIREBASE_CREDENTIALS = json.load(f)
+with open("/app/serviceAccountKey.json") as f:
+    FIREBASE_CREDENTIALS_JSON = f.read()
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "default-secret-key")
 
